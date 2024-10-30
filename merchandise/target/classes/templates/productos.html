@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Productos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f5fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            padding: 30px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d4c75;
+            font-weight: 500;
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3a76c0;
+            color: white;
+            font-weight: 500;
+        }
+
+        td {
+            border-bottom: 1px solid #dddddd;
+            font-size: 15px;
+            color: #333333;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button {
+            background-color: #3a76c0;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: #345a8d;
+            transform: scale(1.02);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #total {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d4c75;
+        }
+
+        .qty-button {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            background-color: #3a76c0;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .qty-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            th, td, button {
+                font-size: 14px;
+            }
+
+            .qty-button {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Seleccionar Productos</h1>
+    <table id="productosTable">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Talla</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Cantidad</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Aquí se insertarán las filas de productos -->
+        </tbody>
+    </table>
+
+    <div id="total">Total: $0.00</div>
+    <button id="confirmarVenta">Confirmar Venta</button>
+</div>
+
+<script>
+    let totalVenta = 0;
+    let productosSeleccionados = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const codigo_cliente = localStorage.getItem('codigo_cliente');
+        if (!codigo_cliente) {
+            alert("No se encontró un cliente registrado. Redirigiendo a la página de registro.");
+            window.location.href = 'index.html';
+        } else {
+            cargarProductos();
+        }
+    });
+
+    function cargarProductos() {
+        fetch('http://localhost:8080/api/productos/ver')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#productosTable tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach(producto => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${producto.tipo}</td>
+                        <td>${producto.talla}</td>
+                        <td>$${producto.precio.toFixed(2)}</td>
+                        <td>${producto.stock}</td>
+                        <td>
+                            <div class="quantity-control">
+                                <button class="qty-button" onclick="adjustQuantity(${producto.codigo_producto}, -1, ${producto.precio})" id="minus-${producto.codigo_producto}" disabled>-</button>
+                                <span id="qty-${producto.codigo_producto}">0</span>
+                                <button class="qty-button" onclick="adjustQuantity(${producto.codigo_producto}, 1, ${producto.precio})" ${producto.stock <= 0 ? 'disabled' : ''} id="plus-${producto.codigo_producto}">+</button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error al cargar los productos:', error));
+    }
+
+    function adjustQuantity(codigoProducto, adjustment, precio) {
+        const qtyDisplay = document.getElementById(`qty-${codigoProducto}`);
+        let quantity = parseInt(qtyDisplay.innerText);
+
+        if (quantity + adjustment < 0) return;
+
+        quantity += adjustment;
+        qtyDisplay.innerText = quantity;
+        actualizarTotal(adjustment * precio);
+
+        document.getElementById(`minus-${codigoProducto}`).disabled = quantity <= 0;
+
+        const productoExistente = productosSeleccionados.find(p => p.id === codigoProducto);
+
+        if (productoExistente) {
+            productoExistente.cantidad = quantity;
+            if (quantity <= 0) {
+                productosSeleccionados = productosSeleccionados.filter(p => p.id !== codigoProducto);
+            }
+        } else if (quantity > 0) {
+            productosSeleccionados.push({ id: codigoProducto, cantidad: quantity });
+        }
+
+        localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
+    }
+
+    function actualizarTotal(monto) {
+        totalVenta += monto;
+        document.getElementById('total').innerText = `Total: $${totalVenta.toFixed(2)}`;
+    }
+
+    document.getElementById('confirmarVenta').addEventListener('click', function() {
+        const codigo_cliente = localStorage.getItem('codigo_cliente');
+        const productosSeleccionados = JSON.parse(localStorage.getItem('productosSeleccionados'));
+
+        if (!productosSeleccionados || productosSeleccionados.length === 0) {
+            alert('Por favor, selecciona al menos un producto.');
+            return;
+        }
+
+        const data = {
+            codigosProductos: productosSeleccionados.map(p => p.id),
+            codigo_cliente: codigo_cliente
+        };
+
+        fetch('http://localhost:8080/api/ventas/crear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            localStorage.setItem('idVenta', data.idVenta);
+            window.location.href = '/venta';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen de Venta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f5fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #2d4c75;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        th {
+            background-color: #3a76c0;
+            color: white;
+            font-weight: 500;
+        }
+
+        td {
+            border-bottom: 1px solid #dddddd;
+            color: #333333;
+        }
+
+        .total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #2d4c75;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3a76c0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #345a8d;
+            transform: scale(1.02);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1, h2 {
+                font-size: 24px;
+            }
+
+            th, td, .btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Resumen de Venta</h1>
+
+    <h2>Cliente</h2>
+    <div id="clienteInfo"></div>
+
+    <h2>Productos Seleccionados</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Talla</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+        </tr>
+        </thead>
+        <tbody id="productosSeleccionados"></tbody>
+    </table>
+
+    <div class="total" id="totalVenta">Total: $0.00</div>
+
+    <a href="/" class="btn">Nueva Venta</a>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const idVenta = localStorage.getItem('idVenta');
+
+        if (!idVenta) {
+            alert("No se encontró una venta activa. Redirigiendo al inicio.");
+            window.location.href = '/';
+            return;
+        }
+
+        fetch(`http://localhost:8080/api/ventas/completa/${idVenta}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('clienteInfo').innerText = `Nombre del Cliente: ${data.cliente.nombre}`;
+
+                const productosTable = document.getElementById('productosSeleccionados');
+                data.productos.forEach(producto => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${producto.tipo}</td>
+                        <td>${producto.talla}</td>
+                        <td>$${producto.precio.toFixed(2)}</td>
+                        <td>1</td>
+                    `;
+                    productosTable.appendChild(row);
+                });
+
+                document.getElementById('totalVenta').innerText = `Total: $${data.total.toFixed(2)}`;
+
+                localStorage.removeItem('idVenta');
+            })
+            .catch(error => {
+                console.error("Error al cargar los datos de la venta:", error);
+                alert("Hubo un problema al cargar el resumen de la venta.");
+                window.location.href = '/';
+            });
+    });
+</script>
+</body>
+</html>
