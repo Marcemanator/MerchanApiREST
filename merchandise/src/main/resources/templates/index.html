@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Cliente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f5fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d4c75;
+            font-weight: 500;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4f4f4f;
+            font-size: 14px;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #d0e0f0;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #3a76c0;
+            outline: none;
+        }
+
+        button {
+            background-color: #3a76c0;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: #345a8d;
+            transform: scale(1.02);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            label, button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Registro de Cliente</h1>
+    <form id="clienteForm">
+        <div class="form-group">
+            <label for="nombre">Nombre (opcional):</label>
+            <input type="text" id="nombre" name="nombre">
+        </div>
+
+        <div class="form-group">
+            <label for="apellido">Apellido (opcional):</label>
+            <input type="text" id="apellido" name="apellido">
+        </div>
+
+        <div class="form-group">
+            <label for="mail">Correo Electrónico (opcional):</label>
+            <input type="email" id="mail" name="mail">
+        </div>
+
+        <button type="submit">Registrar Cliente</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('clienteForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const nombre = document.getElementById('nombre').value;
+        const apellido = document.getElementById('apellido').value;
+        const mail = document.getElementById('mail').value;
+
+        let url = `http://localhost:8080/api/clientes/crear`;
+        const params = new URLSearchParams();
+        if (nombre) params.append('nombre', nombre);
+        if (apellido) params.append('apellido', apellido);
+        if (mail) params.append('mail', mail);
+        url += `?${params.toString()}`;
+
+        fetch(url, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.codigo_cliente) {
+                localStorage.setItem('codigo_cliente', data.codigo_cliente);
+
+                window.location.href = '/productos';
+            } else {
+                throw new Error("Código de cliente no recibido en la respuesta");
+            }
+        })
+        .catch(error => {
+            console.error('Error al registrar el cliente:', error);
+            alert("Hubo un problema al registrar el cliente. Inténtalo de nuevo.");
+        });
+    });
+</script>
+</body>
+</html>
+

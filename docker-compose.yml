@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  merchandise:
+    build: ./merchandise
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      URL: jdbc:mysql://mymerchandise:3306/merchandise?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      NAME: root
+      PASSWORD: root
+      SECRET: secreto
+    restart: always
+    depends_on:
+      mymerchandise:
+        condition: service_healthy
+
+  mymerchandise:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: merchandise
+    volumes:
+      - mymerchandise_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mymerchandise
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - mymerchandise
+
+volumes:
+  mymerchandise_data:
