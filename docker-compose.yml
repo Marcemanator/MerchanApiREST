@@ -1,3 +1,4 @@
+
 version: '3'
 services:
   merchandise:
@@ -10,7 +11,7 @@ services:
       NAME: root
       PASSWORD: root
       SECRET: ${SECRET}
-      SERVER_URL: ${SERVER_URL} 
+      SERVER_URL: ${SERVER_URL}
     restart: always
     depends_on:
       mymerchandise:
@@ -44,4 +45,4 @@ services:
       - mymerchandise
 
 volumes:
-  mymerch
+  mymerchandise_data: {}
