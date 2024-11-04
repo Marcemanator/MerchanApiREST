@@ -139,6 +139,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const idVenta = localStorage.getItem('idVenta');
+        const serverUrl = /*[[${serverUrl}]]*/ '';
 
         if (!idVenta) {
             alert("No se encontró una venta activa. Redirigiendo al inicio.");

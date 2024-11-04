@@ -164,6 +164,7 @@
 <script>
     let totalVenta = 0;
     let productosSeleccionados = [];
+    const serverUrl = /*[[${serverUrl}]]*/ '';
 
     document.addEventListener('DOMContentLoaded', () => {
         const codigo_cliente = localStorage.getItem('codigo_cliente');
@@ -176,7 +177,7 @@
     });
 
     function cargarProductos() {
-        fetch('${serverUrl}/api/productos/ver')
+        fetch(`${serverUrl}/api/productos/ver`)
             .then(response => response.json())
             .then(data => {
                 const tableBody = document.querySelector('#productosTable tbody');
@@ -248,7 +249,7 @@
             codigo_cliente: codigo_cliente
         };
 
-        fetch('${serverUrl}/api/ventas/crear', {
+        fetch(`${serverUrl}/api/ventas/crear`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

@@ -126,7 +126,6 @@
         <button type="submit">Registrar Cliente</button>
     </form>
 </div>
-
 <script>
     document.getElementById('clienteForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -135,7 +134,11 @@
         const apellido = document.getElementById('apellido').value;
         const mail = document.getElementById('mail').value;
 
+        // Inserta el valor de `serverUrl` desde el backend
+        const serverUrl = /*[[${serverUrl}]]*/ '';
         let url = `${serverUrl}/api/clientes/crear`;
+        console.log("URL del servidor:", url);
+
         const params = new URLSearchParams();
         if (nombre) params.append('nombre', nombre);
         if (apellido) params.append('apellido', apellido);
@@ -149,7 +152,6 @@
         .then(data => {
             if (data.codigo_cliente) {
                 localStorage.setItem('codigo_cliente', data.codigo_cliente);
-
                 window.location.href = '/productos';
             } else {
                 throw new Error("Código de cliente no recibido en la respuesta");
@@ -161,6 +163,7 @@
         });
     });
 </script>
+
 </body>
 </html>
 
