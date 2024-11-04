@@ -33,6 +33,7 @@ public class ClienteController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("codigo_cliente", clienteGuardado.getCodigo_cliente());
+
         response.put("message", "Cliente creado");
 
         return ResponseEntity.ok(response);

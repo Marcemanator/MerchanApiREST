@@ -146,7 +146,7 @@
             return;
         }
 
-        fetch(`http://localhost:8080/api/ventas/completa/${idVenta}`)
+        fetch(`${serverUrl}/api/ventas/completa/${idVenta}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('clienteInfo').innerText = `Nombre del Cliente: ${data.cliente.nombre}`;

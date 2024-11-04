@@ -135,7 +135,7 @@
         const apellido = document.getElementById('apellido').value;
         const mail = document.getElementById('mail').value;
 
-        let url = `http://localhost:8080/api/clientes/crear`;
+        let url = `${serverUrl}/api/clientes/crear`;
         const params = new URLSearchParams();
         if (nombre) params.append('nombre', nombre);
         if (apellido) params.append('apellido', apellido);
