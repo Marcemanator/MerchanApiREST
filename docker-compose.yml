@@ -1,5 +1,4 @@
-
-
+version: '3'
 services:
   merchandise:
     build: ./merchandise
@@ -7,10 +6,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      URL: jdbc:mysql://mymerchandise:3306/merchandise?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      URL: ${URL}
       NAME: root
       PASSWORD: root
-      SECRET: secreto
+      SECRET: ${SECRET}
+      SERVER_URL: ${SERVER_URL} 
     restart: always
     depends_on:
       mymerchandise:
@@ -44,4 +44,4 @@ services:
       - mymerchandise
 
 volumes:
-  mymerchandise_data:
+  mymerch
