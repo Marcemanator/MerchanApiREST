@@ -44,4 +44,4 @@ services:
       - mymerchandise
 
 volumes:
-  mymerch
+  mymerchandise_data{}
