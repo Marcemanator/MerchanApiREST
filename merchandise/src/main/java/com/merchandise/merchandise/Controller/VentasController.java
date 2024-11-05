@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class VentasController {
     @Value("${server.url}")
+
     private String serverUrl;
+
     @GetMapping("/venta")
     public String mostrarVenta(Model model) {
 

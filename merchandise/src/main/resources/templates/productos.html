@@ -164,7 +164,7 @@
 <script>
     let totalVenta = 0;
     let productosSeleccionados = [];
-    const serverUrl = /*[[${serverUrl}]]*/ '';
+    const serverUrl = /*[[${serverUrl}]]*/ '';  // URL del servidor, debe ser proporcionada por el backend
 
     document.addEventListener('DOMContentLoaded', () => {
         const codigo_cliente = localStorage.getItem('codigo_cliente');
@@ -244,25 +244,32 @@
             return;
         }
 
-        const data = {
-            codigosProductos: productosSeleccionados.map(p => p.id),
-            codigo_cliente: codigo_cliente
+        const ventaRequest = {
+            codigo_cliente: parseInt(codigo_cliente),
+            productosCantidad: productosSeleccionados.reduce((obj, item) => {
+                obj[item.id] = item.cantidad;
+                return obj;
+            }, {})
         };
 
         fetch(`${serverUrl}/api/ventas/crear`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(ventaRequest)
         })
         .then(response => response.json())
         .then(data => {
-
-            localStorage.setItem('idVenta', data.idVenta);
-            window.location.href = '/venta';
+            if (data.idVenta) {
+                localStorage.setItem('idVenta', data.idVenta);  // Almacena `idVenta`
+                window.location.href = '/venta';  // Redirige a la página de venta
+            } else {
+                console.error("No se recibió un idVenta");
+            }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error al crear la venta:', error);
+        });
     });
 </script>
 </body>
 </html>
-

@@ -5,12 +5,13 @@ import com.merchandise.merchandise.Model.Producto;
 import com.merchandise.merchandise.Model.Venta;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IVentaService {
 
     public List<Venta> verVentas();
 
-    public Venta crearVenta(List<Long>idsProductos, Long codigo_cliente);
+    public Venta crearVenta(Long codigoCliente, Map<Long, Integer> productosCantidad);
 
     public Venta buscarVenta(Long codigo_venta);
 

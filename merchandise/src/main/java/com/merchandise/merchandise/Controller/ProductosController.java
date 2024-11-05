@@ -12,8 +12,8 @@ import java.util.List;
 @Controller
 public class ProductosController {
 
-    @Value("${server.url}")
-    private String serverUrl;
+   @Value("${server.url}")
+   private String serverUrl;
 
     @Autowired
     ProductoService Prodserv;
